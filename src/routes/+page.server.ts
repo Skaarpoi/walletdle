@@ -115,4 +115,3 @@ export const actions: Actions = {
 		cookies.set(COOKIE, writeCookie(stored), cookieOpts);
 	}
 };
-

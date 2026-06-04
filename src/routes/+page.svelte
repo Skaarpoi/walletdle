@@ -15,6 +15,7 @@
 
 	const HINT_LABEL: Record<HintResult, string> = {
 		correct: '✓',
+		partial: '~',
 		wrong: '✗',
 		higher: '↑',
 		lower: '↓'
@@ -206,7 +207,7 @@
 		text-align: center;
 	}
 
-.guess-table-wrapper {
+	.guess-table-wrapper {
 		overflow-x: visible;
 	}
 
@@ -282,6 +283,12 @@
 		background: #003300;
 		color: #00ff41;
 		border-color: #00ff41;
+	}
+
+	.hint-partial {
+		background: #1a1000;
+		color: #fbbf24;
+		border-color: #fbbf24;
 	}
 
 	.hint-wrong {

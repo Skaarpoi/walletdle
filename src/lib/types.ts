@@ -7,25 +7,78 @@ export type Game =
 
 export type Gender = 'Male' | 'Female' | 'Other';
 
-export type Role = 'DPS' | 'Support' | 'Healer' | 'Tank' | 'Specialist';
+export type RarityTier = 'N' | 'R' | 'SR' | 'SSR' | 'Other';
 
-export type ComparisonType = 'exact' | 'ordered';
+export interface Hierarchical {
+	type: string;
+	sub: string;
+}
 
-export type RarityTier = 'R' | 'SR' | 'SSR';
+export type SpeciesType = 'Human' | 'Demi-human' | 'Fantasy' | 'Android' | 'Other';
 
-export type HintResult = 'correct' | 'higher' | 'lower' | 'wrong';
+export interface Species extends Hierarchical {
+	type: SpeciesType;
+}
+
+export type HairColor =
+	| 'Black'
+	| 'White'
+	| 'Blonde'
+	| 'Brown'
+	| 'Red'
+	| 'Blue'
+	| 'Green'
+	| 'Pink'
+	| 'Purple'
+	| 'Multicolor';
+
+export type EyeColor =
+	| 'Black'
+	| 'Brown'
+	| 'Red'
+	| 'Blue'
+	| 'Green'
+	| 'Purple'
+	| 'Yellow'
+	| 'Pink'
+	| 'White'
+	| 'Multicolor';
+
+export type Developer = 'HoYoverse' | 'Yostar' | 'Nexon' | 'Kuro Games' | 'Cygames' | 'Other';
+
+export type HeightCategory = 'Short' | 'Average' | 'Tall';
+
+export type OutfitColor =
+	| 'Black'
+	| 'White'
+	| 'Red'
+	| 'Blue'
+	| 'Green'
+	| 'Purple'
+	| 'Yellow'
+	| 'Pink'
+	| 'Brown'
+	| 'Multicolor';
+
+export type ComparisonType = 'exact' | 'ordered' | 'hierarchical';
+
+export type HintResult = 'correct' | 'partial' | 'higher' | 'lower' | 'wrong';
 
 export interface Character {
 	id: string;
 	name: string;
 	game: Game;
+	developer: Developer;
 	releaseDate: string;
 	rarity: RarityTier;
-	element: string;
-	weaponType: string;
 	gender: Gender;
-	faction: string;
-	role: Role;
+	species: Species;
+	hairColor: HairColor;
+	eyeColor: EyeColor;
+	heightCategory: HeightCategory;
+	outfitColor: OutfitColor;
+	affiliation: string;
+	voiceActorJP: string;
 }
 
 export interface AttributeConfig {
@@ -33,6 +86,7 @@ export interface AttributeConfig {
 	label: string;
 	type: ComparisonType;
 	format?: (val: unknown) => string;
+	order?: (val: unknown) => number;
 }
 
 export interface GuessResult {
