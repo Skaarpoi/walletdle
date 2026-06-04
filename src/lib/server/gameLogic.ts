@@ -8,8 +8,15 @@ export function getDailyCharacter(): Character {
 }
 
 function compareOrdered(gVal: unknown, tVal: unknown, order?: (v: unknown) => number): HintResult {
-	const g = order ? order(gVal) : (gVal as number | string);
-	const t = order ? order(tVal) : (tVal as number | string);
+	if (order) {
+		const g = order(gVal);
+		const t = order(tVal);
+		if (g === -1 || t === -1 || Number.isNaN(g) || Number.isNaN(t)) return 'wrong';
+		if (g === t) return 'correct';
+		return g < t ? 'higher' : 'lower';
+	}
+	const g = gVal as number | string;
+	const t = tVal as number | string;
 	if (g === t) return 'correct';
 	return g < t ? 'higher' : 'lower';
 }

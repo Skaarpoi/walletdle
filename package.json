@@ -7,7 +7,7 @@
 		"dev": "vite dev",
 		"build": "vite build",
 		"preview": "npm run build && wrangler dev",
-		"prepare": "svelte-kit sync || echo ''",
+		"prepare": "svelte-kit sync || echo '' && simple-git-hooks",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "prettier --check . && eslint .",
@@ -16,6 +16,9 @@
 		"test": "npm run test:unit -- --run",
 		"deploy": "npm run build && wrangler deploy",
 		"cf-typegen": "wrangler types ./src/worker-configuration.d.ts"
+	},
+	"simple-git-hooks": {
+		"pre-commit": "npx lint-staged"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^2.0.4",
@@ -30,9 +33,11 @@
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-svelte": "^3.17.0",
 		"globals": "^17.4.0",
+		"lint-staged": "^17.0.7",
 		"playwright": "^1.59.1",
 		"prettier": "^3.8.1",
 		"prettier-plugin-svelte": "^3.5.1",
+		"simple-git-hooks": "^2.13.1",
 		"svelte": "^5.55.2",
 		"svelte-check": "^4.4.6",
 		"typescript": "^6.0.2",

@@ -18,22 +18,22 @@ Guesses and purchased hints are persisted in an `httpOnly` cookie keyed by date,
 
 Edit [`src/lib/data/characters.ts`](src/lib/data/characters.ts). Each entry must satisfy the `Character` type:
 
-| Field            | Type              | Notes                                                              |
-| ---------------- | ----------------- | ------------------------------------------------------------------ |
-| `id`             | `string`          | Unique kebab-case slug                                             |
-| `name`           | `string`          | Display name                                                       |
-| `game`           | `Game`            | Must match the `Game` union in `types.ts`                          |
-| `developer`      | `Developer`       | Studio — `'HoYoverse' \| 'Yostar' \| 'Nexon' \| ...`             |
-| `releaseDate`    | `string`          | `YYYY-MM-DD` global/EN release                                     |
-| `rarity`         | `RarityTier`      | `'N' \| 'R' \| 'SR' \| 'SSR' \| 'Other'` — normalised across games |
-| `gender`         | `Gender`          | `'Male' \| 'Female' \| 'Other'`                                    |
-| `species`        | `Species`         | `{ type: SpeciesType, sub: string }` — e.g. `Demi-human (Wolf)`   |
-| `hairColor`      | `HairColor`       | Broad colour category                                              |
-| `eyeColor`       | `EyeColor`        | Broad colour category                                              |
-| `heightCategory` | `HeightCategory`  | `'Short' \| 'Average' \| 'Tall'`                                   |
-| `outfitColor`    | `OutfitColor`     | Dominant outfit colour                                             |
-| `affiliation`    | `string`          | Nation, school, faction, stable, etc.                              |
-| `voiceActorJP`   | `string`          | Japanese voice actor (romanised)                                   |
+| Field            | Type             | Notes                                                              |
+| ---------------- | ---------------- | ------------------------------------------------------------------ |
+| `id`             | `string`         | Unique kebab-case slug                                             |
+| `name`           | `string`         | Display name                                                       |
+| `game`           | `Game`           | Must match the `Game` union in `types.ts`                          |
+| `developer`      | `Developer`      | Studio — `'HoYoverse' \| 'Yostar' \| 'Nexon' \| ...`               |
+| `releaseDate`    | `string`         | `YYYY-MM-DD` global/EN release                                     |
+| `rarity`         | `RarityTier`     | `'N' \| 'R' \| 'SR' \| 'SSR' \| 'Other'` — normalised across games |
+| `gender`         | `Gender`         | `'Male' \| 'Female' \| 'Other'`                                    |
+| `species`        | `Species`        | `{ type: 'Demi-human', sub: 'Wolf' }` — `sub` is `''` for humans   |
+| `hairColor`      | `HairColor`      | Broad colour category                                              |
+| `eyeColor`       | `EyeColor`       | Broad colour category                                              |
+| `heightCategory` | `HeightCategory` | `'Short' \| 'Average' \| 'Tall'`                                   |
+| `outfitColor`    | `OutfitColor`    | Dominant outfit colour                                             |
+| `affiliation`    | `string`         | Nation, school, faction, stable, etc.                              |
+| `voiceActorJP`   | `string`         | Japanese voice actor (romanised)                                   |
 
 To add a new game, extend the `Game` union in [`src/lib/types.ts`](src/lib/types.ts).
 
