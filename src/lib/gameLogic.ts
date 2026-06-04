@@ -8,7 +8,6 @@ const RARITY_ORDER: Record<RarityTier, number> = { N: 0, R: 1, SR: 2, SSR: 3, Ot
 const HEIGHT_ORDER: Record<HeightCategory, number> = { Short: 0, Average: 1, Tall: 2 };
 export const ATTRIBUTE_CONFIGS: AttributeConfig[] = [
 	{ key: 'game', label: 'Game', type: 'exact' },
-	{ key: 'developer', label: 'Developer', type: 'exact' },
 	{
 		key: 'rarity',
 		label: 'Rarity',
