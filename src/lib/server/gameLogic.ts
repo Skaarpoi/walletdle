@@ -1,4 +1,4 @@
-import type { Character, GuessResult, HintResult } from '$lib/types';
+import type { Character, GuessResult, HintResult, Species } from '$lib/types';
 import { characters } from '$lib/data/characters';
 import { ATTRIBUTE_CONFIGS } from '$lib/gameLogic';
 
@@ -7,22 +7,43 @@ export function getDailyCharacter(): Character {
 	return characters[dayIndex % characters.length];
 }
 
-function compareOrdered(guessVal: number | string, targetVal: number | string): HintResult {
-	if (guessVal === targetVal) return 'correct';
-	return guessVal < targetVal ? 'higher' : 'lower';
+function compareOrdered(
+	gVal: unknown,
+	tVal: unknown,
+	order?: (v: unknown) => number
+): HintResult {
+	const g = order ? order(gVal) : (gVal as number | string);
+	const t = order ? order(tVal) : (tVal as number | string);
+	if (g === t) return 'correct';
+	return g < t ? 'higher' : 'lower';
+}
+
+function compareHierarchical(gVal: unknown, tVal: unknown): HintResult {
+	const g = gVal as Species;
+	const t = tVal as Species;
+	if (g.type === t.type && g.sub === t.sub) return 'correct';
+	if (g.type === t.type) return 'partial';
+	return 'wrong';
 }
 
 export function evaluateGuess(guess: Character, target: Character): GuessResult {
 	const hints: GuessResult['hints'] = {};
+
 	for (const config of ATTRIBUTE_CONFIGS) {
 		const gVal = guess[config.key];
 		const tVal = target[config.key];
-		hints[config.key] =
-			config.type === 'ordered'
-				? compareOrdered(gVal as number | string, tVal as number | string)
-				: gVal === tVal
-					? 'correct'
-					: 'wrong';
+
+		let hint: HintResult;
+		if (config.type === 'hierarchical') {
+			hint = compareHierarchical(gVal, tVal);
+		} else if (config.type === 'ordered') {
+			hint = compareOrdered(gVal, tVal, config.order);
+		} else {
+			hint = gVal === tVal ? 'correct' : 'wrong';
+		}
+
+		hints[config.key] = hint;
 	}
+
 	return { character: guess, hints };
 }
