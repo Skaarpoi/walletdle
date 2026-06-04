@@ -1,42 +1,69 @@
-# sv
+# 💸 Walletdle
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A daily gacha character guessing game. Guess today's character by comparing attributes — each guess costs **$20**, each hint costs **$100**. Try not to go bankrupt. 💀
 
-## Creating a project
+## 🧰 Stack
 
-If you're seeing this, you've probably already done this step. Congrats!
+- **SvelteKit** + **Svelte 5** (runes mode)
+- **TypeScript**
+- **Cloudflare Workers** via `@sveltejs/adapter-cloudflare`
 
-```sh
-# create a new project
-npx sv create my-app
+## 🎮 How it works
+
+A new character is selected each day using a deterministic date-based index. The target is only ever known server-side — the client receives hints (correct / higher / lower / wrong) but never the character itself.
+
+Guesses and purchased hints are persisted in an `httpOnly` cookie keyed by date, so progress survives page refreshes and resets automatically the next day.
+
+## ➕ Adding characters
+
+Edit [`src/lib/data/characters.ts`](src/lib/data/characters.ts). Each entry must satisfy the `Character` type:
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | `string` | Unique kebab-case slug |
+| `name` | `string` | Display name |
+| `game` | `Game` | Must match the `Game` union in `types.ts` |
+| `releaseDate` | `string` | `YYYY-MM-DD` global/EN release |
+| `rarity` | `RarityTier` | `'R' \| 'SR' \| 'SSR'` — normalised across games |
+| `element` | `string` | In-game element or attribute |
+| `weaponType` | `string` | Weapon type or operator class |
+| `gender` | `Gender` | `'Male' \| 'Female' \| 'Other'` |
+| `faction` | `string` | Region or affiliation |
+| `role` | `Role` | `'DPS' \| 'Support' \| 'Healer' \| 'Tank' \| 'Specialist'` |
+
+To add a new game, extend the `Game` union in [`src/lib/types.ts`](src/lib/types.ts).
+
+## 🗂️ Adding or changing compared attributes
+
+Edit `ATTRIBUTE_CONFIGS` in [`src/lib/gameLogic.ts`](src/lib/gameLogic.ts). Each entry controls a column in the guess table:
+
+```ts
+{ key: 'element', label: 'Element', type: 'exact' }
+{ key: 'rarity',  label: 'Rarity',  type: 'ordered' }
 ```
 
-To recreate this project with the same configuration:
+- `exact` — ✅ green if match, grey if not
+- `ordered` — ✅ green if match, 🔵 ↑ if target is higher, 🔵 ↓ if lower
 
-```sh
-# recreate this project
-npx sv@0.15.2 create --template minimal --types ts --add prettier eslint vitest="usages:unit,component" --install npm walletdle
+## 💰 Cost constants
+
+Also in `gameLogic.ts`:
+
+```ts
+export const GUESS_COST  = 20;   // $ per guess
+export const HINT_COST   = 100;  // $ per column hint
+export const MAX_GUESSES = 8;
 ```
 
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+## 🛠️ Dev
 
 ```sh
+npm install
 npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
 ```
 
-## Building
-
-To create a production version of your app:
+## 🚀 Deploy
 
 ```sh
-npm run build
+npm run deploy   # builds and pushes to Cloudflare Workers
 ```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
