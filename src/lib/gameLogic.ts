@@ -11,7 +11,15 @@ export const ATTRIBUTE_CONFIGS: AttributeConfig[] = [
 	{ key: 'developer',     label: 'Developer',   type: 'exact' },
 	{ key: 'rarity',        label: 'Rarity',      type: 'ordered', order: (v) => RARITY_ORDER[v as RarityTier] ?? -1 },
 	{ key: 'gender',        label: 'Gender',      type: 'exact' },
-{ key: 'species',       label: 'Species',     type: 'hierarchical', format: (v) => { const s = v as Species; return s.sub ? `${s.type} (${s.sub})` : s.type; } },
+	{
+		key: 'species',
+		label: 'Species',
+		type: 'hierarchical',
+		format: (v) => {
+			const s = v as Species;
+			return s.sub ? `${s.type} (${s.sub})` : s.type;
+		}
+	},
 	{ key: 'hairColor',     label: 'Hair',        type: 'exact' },
 	{ key: 'eyeColor',      label: 'Eyes',        type: 'exact' },
 	{ key: 'heightCategory',label: 'Height',      type: 'ordered', order: (v) => HEIGHT_ORDER[v as HeightCategory] ?? -1 },

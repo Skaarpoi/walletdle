@@ -9,11 +9,15 @@ export type Gender = 'Male' | 'Female' | 'Other';
 
 export type RarityTier = 'N' | 'R' | 'SR' | 'SSR' | 'Other';
 
+export interface Hierarchical {
+	type: string;
+	sub: string;
+}
+
 export type SpeciesType = 'Human' | 'Demi-human' | 'Fantasy' | 'Android' | 'Other';
 
-export interface Species {
+export interface Species extends Hierarchical {
 	type: SpeciesType;
-	sub: string;
 }
 
 export type HairColor =

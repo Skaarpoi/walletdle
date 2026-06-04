@@ -1,4 +1,4 @@
-import type { Character, GuessResult, HintResult, Species } from '$lib/types';
+import type { Character, GuessResult, Hierarchical, HintResult } from '$lib/types';
 import { characters } from '$lib/data/characters';
 import { ATTRIBUTE_CONFIGS } from '$lib/gameLogic';
 
@@ -18,11 +18,9 @@ function compareOrdered(
 	return g < t ? 'higher' : 'lower';
 }
 
-function compareHierarchical(gVal: unknown, tVal: unknown): HintResult {
-	const g = gVal as Species;
-	const t = tVal as Species;
-	if (g.type === t.type && g.sub === t.sub) return 'correct';
-	if (g.type === t.type) return 'partial';
+function compareHierarchical(gVal: Hierarchical, tVal: Hierarchical): HintResult {
+	if (gVal.type === tVal.type && gVal.sub === tVal.sub) return 'correct';
+	if (gVal.type === tVal.type) return 'partial';
 	return 'wrong';
 }
 
@@ -35,7 +33,7 @@ export function evaluateGuess(guess: Character, target: Character): GuessResult 
 
 		let hint: HintResult;
 		if (config.type === 'hierarchical') {
-			hint = compareHierarchical(gVal, tVal);
+			hint = compareHierarchical(gVal as Hierarchical, tVal as Hierarchical);
 		} else if (config.type === 'ordered') {
 			hint = compareOrdered(gVal, tVal, config.order);
 		} else {
