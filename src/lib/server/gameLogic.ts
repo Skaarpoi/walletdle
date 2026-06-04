@@ -7,11 +7,7 @@ export function getDailyCharacter(): Character {
 	return characters[dayIndex % characters.length];
 }
 
-function compareOrdered(
-	gVal: unknown,
-	tVal: unknown,
-	order?: (v: unknown) => number
-): HintResult {
+function compareOrdered(gVal: unknown, tVal: unknown, order?: (v: unknown) => number): HintResult {
 	const g = order ? order(gVal) : (gVal as number | string);
 	const t = order ? order(tVal) : (tVal as number | string);
 	if (g === t) return 'correct';

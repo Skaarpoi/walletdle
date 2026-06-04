@@ -207,7 +207,7 @@
 		text-align: center;
 	}
 
-.guess-table-wrapper {
+	.guess-table-wrapper {
 		overflow-x: visible;
 	}
 
