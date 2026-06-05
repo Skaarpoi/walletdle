@@ -273,6 +273,8 @@
 		margin-top: 0.4rem;
 		color: #f59e0b;
 		font-size: 0.5rem;
+		white-space: normal;
+		word-break: break-word;
 	}
 
 	.name-cell {
