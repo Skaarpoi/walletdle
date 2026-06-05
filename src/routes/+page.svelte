@@ -32,6 +32,61 @@
 		const rawVal = correctGuess.character[cfg.key];
 		return cfg.format ? cfg.format(rawVal) : String(rawVal);
 	}
+
+	// ── Slot machine animation ────────────────────────────────────────────
+	const SPIN_POOLS: Partial<Record<string, string[]>> = {
+		game: ['Genshin Impact', 'Honkai: Star Rail', 'Arknights', 'Blue Archive', 'Wuthering Waves'],
+		rarity: ['R', 'SR', 'SSR'],
+		gender: ['Male', 'Female', 'Other'],
+		species: ['Human', 'Demi-human', 'Fantasy', 'Android'],
+		hairColor: ['Black', 'White', 'Blonde', 'Brown', 'Red', 'Blue', 'Green', 'Pink', 'Purple'],
+		eyeColor: ['Black', 'Brown', 'Red', 'Blue', 'Green', 'Purple', 'Yellow', 'Pink', 'White'],
+		heightCategory: ['Short', 'Average', 'Tall'],
+		outfitColor: ['Black', 'White', 'Red', 'Blue', 'Green', 'Purple', 'Yellow', 'Pink', 'Brown'],
+		affiliation: ['???'],
+		voiceActorJP: ['???'],
+		releaseDate: ['2019-01', '2020-06', '2021-03', '2022-09', '2023-04', '2024-01']
+	};
+
+	type RowSpinState = {
+		reelItems: Record<string, string[]>;
+		stoppedCount: number;
+	};
+
+	let rowDisplays = $state<Record<number, RowSpinState>>({});
+	let lastAnimatedCount = -1;
+
+	$effect(() => {
+		const count = data.guesses.length;
+		if (lastAnimatedCount === -1) {
+			lastAnimatedCount = count;
+			return;
+		}
+		if (count > lastAnimatedCount) {
+			lastAnimatedCount = count;
+			animateRow(count - 1);
+		}
+	});
+
+	async function animateRow(rowIdx: number) {
+		const reelItems: Record<string, string[]> = {};
+		for (const cfg of ATTRIBUTE_CONFIGS) {
+			const pool = SPIN_POOLS[cfg.key] ?? ['???'];
+			reelItems[cfg.key] = Array.from(
+				{ length: 20 },
+				() => pool[Math.floor(Math.random() * pool.length)]
+			);
+		}
+		rowDisplays[rowIdx] = { reelItems, stoppedCount: 0 };
+
+		const STAGGER = 300;
+		const INITIAL_DELAY = 600;
+		await new Promise<void>((r) => setTimeout(r, INITIAL_DELAY));
+		for (let i = 0; i < ATTRIBUTE_CONFIGS.length; i++) {
+			rowDisplays[rowIdx].stoppedCount = i + 1;
+			await new Promise<void>((r) => setTimeout(r, STAGGER));
+		}
+	}
 </script>
 
 <main>
@@ -85,13 +140,17 @@
 				<thead>
 					<tr>
 						<th>Name</th>
-						{#each ATTRIBUTE_CONFIGS as cfg (cfg.key)}
-							{@const revealedValue = getRevealedValue(cfg, data.guesses, data.purchasedHints)}
+						{#each ATTRIBUTE_CONFIGS as cfg, cfgIdx (cfg.key)}
+							{@const latestSpin = rowDisplays[data.guesses.length - 1]}
+							{@const colSpinning = latestSpin !== undefined && cfgIdx >= latestSpin.stoppedCount}
+							{@const revealedValue = colSpinning
+								? (data.purchasedHints[cfg.key] ?? null)
+								: getRevealedValue(cfg, data.guesses, data.purchasedHints)}
 							<th>
 								{cfg.label}
 								{#if revealedValue}
 									<span class="hint-reveal">{revealedValue}</span>
-								{:else if !gameOver}
+								{:else if !gameOver && !colSpinning}
 									<form method="POST" action="?/hint" use:enhance>
 										<input type="hidden" name="key" value={cfg.key} />
 										<button type="submit" class="hint-btn">${HINT_COST}</button>
@@ -102,16 +161,32 @@
 					</tr>
 				</thead>
 				<tbody>
-					{#each data.guesses as result (result.character.id)}
+					{#each data.guesses as result, rowIdx (result.character.id)}
+						{@const spinState = rowDisplays[rowIdx]}
 						<tr>
-							<td class="name-cell">{result.character.name}</td>
-							{#each ATTRIBUTE_CONFIGS as cfg (cfg.key)}
+							<td class="name-cell">
+								<div class="cell-inner">{result.character.name}</div>
+							</td>
+							{#each ATTRIBUTE_CONFIGS as cfg, cfgIdx (cfg.key)}
+								{@const spinning = spinState !== undefined && cfgIdx >= spinState.stoppedCount}
 								{@const hint = result.hints[cfg.key] ?? 'wrong'}
 								{@const rawVal = result.character[cfg.key]}
 								{@const displayVal = cfg.format ? cfg.format(rawVal) : String(rawVal)}
-								<td class="hint-cell hint-{hint}" title={hint}>
-									<span class="cell-value">{displayVal}</span>
-									<span class="cell-icon">{HINT_LABEL[hint]}</span>
+								<td class="hint-cell hint-{spinning ? 'wrong' : hint}" class:spinning title={hint}>
+									{#if spinning}
+										<div class="reel-clip">
+											<div class="reel-track">
+												{#each spinState.reelItems[cfg.key] as item, i (i)}
+													<div class="reel-item">{item}</div>
+												{/each}
+											</div>
+										</div>
+									{:else}
+										<div class="cell-inner">
+											<span class="cell-value">{displayVal}</span>
+											<span class="cell-icon">{HINT_LABEL[hint]}</span>
+										</div>
+									{/if}
 								</td>
 							{/each}
 						</tr>
@@ -278,20 +353,40 @@
 	}
 
 	.name-cell {
-		padding: 0.6rem 0.4rem;
-		line-height: 1.8;
+		padding: 0;
 		color: #ffffff;
 		background: #111;
 		border: 2px solid #333;
+		overflow: hidden;
 	}
 
 	.hint-cell {
-		padding: 0.5rem 0.4rem;
+		padding: 0;
 		text-align: center;
 		border: 2px solid #2a2a2a;
 		background: #111;
 		color: #444;
+		overflow: hidden;
+	}
+
+	.guess-table tbody {
+		--cell-h: 3.5rem;
+	}
+
+	.cell-inner {
+		height: var(--cell-h);
+		box-sizing: border-box;
+		padding: 0.5rem 0.4rem;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		overflow: hidden;
 		line-height: 1.8;
+	}
+
+	.name-cell .cell-inner {
+		align-items: flex-start;
 	}
 
 	.hint-correct {
@@ -317,6 +412,48 @@
 		background: #00001a;
 		color: #4488ff;
 		border-color: #4488ff;
+	}
+
+	.hint-cell.spinning {
+		padding: 0;
+		border-color: transparent;
+		background: transparent;
+		overflow: hidden;
+	}
+
+	@keyframes reel-scroll {
+		from {
+			transform: translateY(calc(-100% + var(--cell-h)));
+		}
+		to {
+			transform: translateY(0);
+		}
+	}
+
+	.reel-clip {
+		height: var(--cell-h);
+		overflow: hidden;
+		width: 100%;
+	}
+
+	.reel-track {
+		display: flex;
+		flex-direction: column;
+		animation: reel-scroll 1.6s linear infinite;
+	}
+
+	.reel-item {
+		height: var(--cell-h);
+		flex-shrink: 0;
+		box-sizing: border-box;
+		width: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 0.45rem;
+		color: #666;
+		border: 2px solid #2a2a2a;
+		background: #111;
 	}
 
 	.cell-value {
