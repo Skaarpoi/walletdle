@@ -30,8 +30,10 @@ function readCookie(raw: string | undefined, today: string): CookieData {
 }
 
 function writeCookie(data: CookieData): string {
-	return JSON.stringify(data satisfies CookieData);
+	return JSON.stringify(data);
 }
+
+const characterNames = characters.map((c) => c.name).sort();
 
 const cookieOpts = {
 	path: '/',
@@ -61,20 +63,23 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		guesses,
 		won,
 		lost,
-		characterNames: characters.map((c) => c.name).sort(),
+		characterNames,
 		purchasedHints: stored.purchasedHints
 	};
 };
 
+function loadActionState(rawCookie: string | undefined) {
+	const target = getDailyCharacter();
+	const today = new Date().toISOString().slice(0, 10);
+	const stored = readCookie(rawCookie, today);
+	const won = stored.guesses.some((g) => g.characterId === target.id);
+	const lost = !won && stored.guesses.length >= MAX_GUESSES;
+	return { target, stored, won, lost };
+}
+
 export const actions: Actions = {
 	guess: async ({ request, cookies }) => {
-		const target = getDailyCharacter();
-		const today = new Date().toISOString().slice(0, 10);
-		const stored = readCookie(cookies.get(COOKIE), today);
-
-		const won = stored.guesses.some((g) => g.characterId === target.id);
-		const lost = !won && stored.guesses.length >= MAX_GUESSES;
-
+		const { target, stored, won, lost } = loadActionState(cookies.get(COOKIE));
 		if (won || lost) return fail(400, { error: 'Game is already over.' });
 
 		const formData = await request.formData();
@@ -93,12 +98,7 @@ export const actions: Actions = {
 	},
 
 	hint: async ({ request, cookies }) => {
-		const target = getDailyCharacter();
-		const today = new Date().toISOString().slice(0, 10);
-		const stored = readCookie(cookies.get(COOKIE), today);
-
-		const won = stored.guesses.some((g) => g.characterId === target.id);
-		const lost = !won && stored.guesses.length >= MAX_GUESSES;
+		const { target, stored, won, lost } = loadActionState(cookies.get(COOKIE));
 		if (won || lost) return fail(400, { error: 'Game is already over.' });
 
 		const formData = await request.formData();
