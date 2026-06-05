@@ -2,7 +2,7 @@
 	import { enhance } from '$app/forms';
 	import { ATTRIBUTE_CONFIGS, GUESS_COST, HINT_COST } from '$lib/gameLogic';
 	import type { PageData, ActionData } from './$types';
-	import type { HintResult } from '$lib/types';
+	import type { AttributeConfig, GuessResult, HintResult } from '$lib/types';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
 
@@ -20,6 +20,18 @@
 		higher: '↑',
 		lower: '↓'
 	};
+
+	function getRevealedValue(
+		cfg: AttributeConfig,
+		guesses: GuessResult[],
+		purchasedHints: Record<string, string>
+	): string | null {
+		if (purchasedHints[cfg.key]) return purchasedHints[cfg.key];
+		const correctGuess = guesses.find((g) => g.hints[cfg.key] === 'correct');
+		if (!correctGuess) return null;
+		const rawVal = correctGuess.character[cfg.key];
+		return cfg.format ? cfg.format(rawVal) : String(rawVal);
+	}
 </script>
 
 <main>
@@ -74,14 +86,7 @@
 					<tr>
 						<th>Name</th>
 						{#each ATTRIBUTE_CONFIGS as cfg (cfg.key)}
-							{@const correctGuess = data.guesses.find((g) => g.hints[cfg.key] === 'correct')}
-							{@const revealedValue =
-								data.purchasedHints[cfg.key] ??
-								(correctGuess
-									? cfg.format
-										? cfg.format(correctGuess.character[cfg.key])
-										: String(correctGuess.character[cfg.key])
-									: null)}
+							{@const revealedValue = getRevealedValue(cfg, data.guesses, data.purchasedHints)}
 							<th>
 								{cfg.label}
 								{#if revealedValue}
@@ -216,7 +221,7 @@
 	}
 
 	.guess-table-wrapper {
-		overflow-x: hidden;
+		overflow-x: auto;
 	}
 
 	.guess-table {
