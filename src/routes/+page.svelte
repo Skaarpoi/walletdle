@@ -2,7 +2,7 @@
 	import { enhance } from '$app/forms';
 	import { ATTRIBUTE_CONFIGS, GUESS_COST, HINT_COST } from '$lib/gameLogic';
 	import type { PageData, ActionData } from './$types';
-	import type { HintResult } from '$lib/types';
+	import type { AttributeConfig, GuessResult, HintResult } from '$lib/types';
 
 	let { data, form }: { data: PageData; form: ActionData } = $props();
 
@@ -20,6 +20,18 @@
 		higher: '↑',
 		lower: '↓'
 	};
+
+	function getRevealedValue(
+		cfg: AttributeConfig,
+		guesses: GuessResult[],
+		purchasedHints: Record<string, string>
+	): string | null {
+		if (purchasedHints[cfg.key]) return purchasedHints[cfg.key];
+		const correctGuess = guesses.find((g) => g.hints[cfg.key] === 'correct');
+		if (!correctGuess) return null;
+		const rawVal = correctGuess.character[cfg.key];
+		return cfg.format ? cfg.format(rawVal) : String(rawVal);
+	}
 </script>
 
 <main>
@@ -74,10 +86,11 @@
 					<tr>
 						<th>Name</th>
 						{#each ATTRIBUTE_CONFIGS as cfg (cfg.key)}
+							{@const revealedValue = getRevealedValue(cfg, data.guesses, data.purchasedHints)}
 							<th>
 								{cfg.label}
-								{#if data.purchasedHints[cfg.key]}
-									<span class="hint-reveal">{data.purchasedHints[cfg.key]}</span>
+								{#if revealedValue}
+									<span class="hint-reveal">{revealedValue}</span>
 								{:else if !gameOver}
 									<form method="POST" action="?/hint" use:enhance>
 										<input type="hidden" name="key" value={cfg.key} />
@@ -208,33 +221,33 @@
 	}
 
 	.guess-table-wrapper {
-		overflow-x: visible;
+		overflow-x: auto;
 	}
 
 	.guess-table {
 		width: 100%;
 		border-collapse: separate;
 		border-spacing: 3px;
-		font-size: 0.55rem;
+		font-size: 0.45rem;
 		table-layout: fixed;
 	}
 
 	.guess-table th {
 		padding: 0.6rem 0.4rem;
 		text-align: center;
-		font-size: 0.5rem;
+		font-size: 0.4rem;
 		text-transform: uppercase;
 		letter-spacing: 0.02em;
 		color: #00ff99;
 		background: #0a0a0a;
 		border: 2px solid #333;
-		word-break: break-word;
+		white-space: nowrap;
 		line-height: 1.8;
 	}
 
 	.guess-table th:first-child {
 		text-align: left;
-		width: 6rem;
+		width: 4rem;
 	}
 
 	.hint-btn {
@@ -271,7 +284,7 @@
 	}
 
 	.hint-cell {
-		padding: 0.5rem 0.3rem;
+		padding: 0.5rem 0.4rem;
 		text-align: center;
 		border: 2px solid #2a2a2a;
 		background: #111;
@@ -306,12 +319,12 @@
 
 	.cell-value {
 		display: block;
-		font-size: 0.55rem;
+		font-size: 0.45rem;
 	}
 
 	.cell-icon {
 		display: block;
-		font-size: 0.6rem;
+		font-size: 0.45rem;
 		margin-top: 0.2rem;
 	}
 </style>

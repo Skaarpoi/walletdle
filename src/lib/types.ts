@@ -44,8 +44,6 @@ export type EyeColor =
 	| 'White'
 	| 'Multicolor';
 
-export type Developer = 'HoYoverse' | 'Yostar' | 'Nexon' | 'Kuro Games' | 'Cygames' | 'Other';
-
 export type HeightCategory = 'Short' | 'Average' | 'Tall';
 
 export type OutfitColor =
@@ -68,7 +66,6 @@ export interface Character {
 	id: string;
 	name: string;
 	game: Game;
-	developer: Developer;
 	releaseDate: string;
 	rarity: RarityTier;
 	gender: Gender;
