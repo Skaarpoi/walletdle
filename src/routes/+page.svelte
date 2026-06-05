@@ -77,13 +77,13 @@
 				() => pool[Math.floor(Math.random() * pool.length)]
 			);
 		}
-		rowDisplays = { ...rowDisplays, [rowIdx]: { reelItems, stoppedCount: 0 } };
+		rowDisplays[rowIdx] = { reelItems, stoppedCount: 0 };
 
 		const STAGGER = 300;
 		const INITIAL_DELAY = 600;
 		await new Promise<void>((r) => setTimeout(r, INITIAL_DELAY));
 		for (let i = 0; i < ATTRIBUTE_CONFIGS.length; i++) {
-			rowDisplays = { ...rowDisplays, [rowIdx]: { ...rowDisplays[rowIdx], stoppedCount: i + 1 } };
+			rowDisplays[rowIdx].stoppedCount = i + 1;
 			await new Promise<void>((r) => setTimeout(r, STAGGER));
 		}
 	}
@@ -369,8 +369,12 @@
 		overflow: hidden;
 	}
 
+	.guess-table tbody {
+		--cell-h: 3.5rem;
+	}
+
 	.cell-inner {
-		height: 3.5rem;
+		height: var(--cell-h);
 		box-sizing: border-box;
 		padding: 0.5rem 0.4rem;
 		display: flex;
@@ -419,7 +423,7 @@
 
 	@keyframes reel-scroll {
 		from {
-			transform: translateY(calc(-100% + var(--reel-h)));
+			transform: translateY(calc(-100% + var(--cell-h)));
 		}
 		to {
 			transform: translateY(0);
@@ -427,8 +431,7 @@
 	}
 
 	.reel-clip {
-		--reel-h: 3.5rem;
-		height: var(--reel-h);
+		height: var(--cell-h);
 		overflow: hidden;
 		width: 100%;
 	}
@@ -440,7 +443,7 @@
 	}
 
 	.reel-item {
-		height: var(--reel-h, 3rem);
+		height: var(--cell-h);
 		flex-shrink: 0;
 		box-sizing: border-box;
 		width: 100%;
