@@ -1,6 +1,6 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { charactersById, charactersByName, characters } from '$lib/data/characters';
+import { charactersById, charactersByName, characters } from '$lib/data';
 import { getDailyCharacter, evaluateGuess } from '$lib/server/gameLogic';
 import { MAX_GUESSES, ATTRIBUTE_CONFIGS } from '$lib/gameLogic';
 import type { GuessResult } from '$lib/types';

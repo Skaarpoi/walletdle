@@ -1,0 +1,62 @@
+[
+	{
+		"id": "chen",
+		"name": "Chen",
+		"game": "Arknights",
+		"releaseDate": "2019-05-01",
+		"rarity": "SSR",
+		"gender": "Female",
+		"species": { "type": "Demi-human", "sub": "Dragon" },
+		"hairColor": "Black",
+		"eyeColor": "Red",
+		"heightCategory": "Average",
+		"outfitColor": "Black",
+		"affiliation": "Lungmen",
+		"voiceActorJP": "Mao"
+	},
+	{
+		"id": "skadi",
+		"name": "Skadi",
+		"game": "Arknights",
+		"releaseDate": "2019-07-08",
+		"rarity": "SSR",
+		"gender": "Female",
+		"species": { "type": "Demi-human", "sub": "Aegir" },
+		"hairColor": "White",
+		"eyeColor": "Blue",
+		"heightCategory": "Tall",
+		"outfitColor": "Blue",
+		"affiliation": "Iberia",
+		"voiceActorJP": "Ai Kakuma"
+	},
+	{
+		"id": "surtr",
+		"name": "Surtr",
+		"game": "Arknights",
+		"releaseDate": "2021-09-30",
+		"rarity": "SSR",
+		"gender": "Female",
+		"species": { "type": "Demi-human", "sub": "Sarkaz" },
+		"hairColor": "Black",
+		"eyeColor": "Red",
+		"heightCategory": "Average",
+		"outfitColor": "Black",
+		"affiliation": "Kazdel",
+		"voiceActorJP": "Nao Toyama"
+	},
+	{
+		"id": "mudrock",
+		"name": "Mudrock",
+		"game": "Arknights",
+		"releaseDate": "2021-04-01",
+		"rarity": "SSR",
+		"gender": "Female",
+		"species": { "type": "Demi-human", "sub": "Sarkaz" },
+		"hairColor": "White",
+		"eyeColor": "Red",
+		"heightCategory": "Tall",
+		"outfitColor": "White",
+		"affiliation": "Sarkaz",
+		"voiceActorJP": "Kana Hanazawa"
+	}
+]
