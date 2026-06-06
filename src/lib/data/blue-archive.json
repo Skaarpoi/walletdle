@@ -1,0 +1,47 @@
+[
+	{
+		"id": "hina",
+		"name": "Hina",
+		"game": "Blue Archive",
+		"releaseDate": "2021-02-04",
+		"rarity": "SSR",
+		"gender": "Female",
+		"species": { "type": "Demi-human", "sub": "Dog" },
+		"hairColor": "Blue",
+		"eyeColor": "Blue",
+		"heightCategory": "Average",
+		"outfitColor": "Black",
+		"affiliation": "Gehenna",
+		"voiceActorJP": "Yu Serizawa"
+	},
+	{
+		"id": "shiroko",
+		"name": "Shiroko",
+		"game": "Blue Archive",
+		"releaseDate": "2021-02-04",
+		"rarity": "SSR",
+		"gender": "Female",
+		"species": { "type": "Demi-human", "sub": "Wolf" },
+		"hairColor": "White",
+		"eyeColor": "Blue",
+		"heightCategory": "Short",
+		"outfitColor": "White",
+		"affiliation": "Abydos",
+		"voiceActorJP": "Rie Takahashi"
+	},
+	{
+		"id": "aris",
+		"name": "Aris",
+		"game": "Blue Archive",
+		"releaseDate": "2022-03-09",
+		"rarity": "SSR",
+		"gender": "Female",
+		"species": { "type": "Android", "sub": "" },
+		"hairColor": "Black",
+		"eyeColor": "Purple",
+		"heightCategory": "Short",
+		"outfitColor": "Black",
+		"affiliation": "Game Development Club",
+		"voiceActorJP": "Mikako Komatsu"
+	}
+]
