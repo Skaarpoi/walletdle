@@ -1,5 +1,5 @@
 import type { Character, GuessResult, Hierarchical, HintResult } from '$lib/types';
-import { characters } from '$lib/data/characters';
+import { characters } from '$lib/data';
 import { ATTRIBUTE_CONFIGS } from '$lib/gameLogic';
 
 export function getDailyCharacter(): Character {
