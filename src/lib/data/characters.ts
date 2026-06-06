@@ -1,4 +1,9 @@
 import type { Character } from '$lib/types';
+import Ajv from 'ajv';
+import characterSchema from './characterschema.json' with { type: 'json' };
+
+const ajv = new Ajv({ validateSchema: false });
+const validate = ajv.compile(characterSchema);
 
 export const characters: Character[] = [
 	{
@@ -272,6 +277,19 @@ export const characters: Character[] = [
 		voiceActorJP: 'Mikako Komatsu'
 	}
 ];
+
+//Checks for errors remove later
+if (import.meta.env.DEV) {
+	characters.forEach((char, idx) => {
+		const valid = validate(char);
+		if (!valid) {
+			console.error(`Character validation failed at index ${idx} (${char.id}):`);
+			console.error(validate.errors);
+		} else {
+			console.log(`${char.id} success`);
+		}
+	});
+}
 
 export const characterNames: string[] = characters.map((c) => c.name).sort();
 
