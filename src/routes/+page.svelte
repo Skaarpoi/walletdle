@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
 	import { enhance } from '$app/forms';
 	import { ATTRIBUTE_CONFIGS, GUESS_COST, HINT_COST } from '$lib/gameLogic';
 	import type { PageData, ActionData } from './$types';
@@ -124,15 +123,9 @@
 	}
 
 	async function shareResults() {
-		if (!browser) return;
-		const text = buildShareText();
-		if (navigator.share) {
-			await navigator.share({ text });
-		} else {
-			await navigator.clipboard.writeText(text);
-			shareLabel = 'Copied!';
-			setTimeout(() => (shareLabel = 'Share'), 2000);
-		}
+		await navigator.clipboard.writeText(buildShareText());
+		shareLabel = 'Copied!';
+		setTimeout(() => (shareLabel = 'Share'), 2000);
 	}
 
 	async function animateRow(rowIdx: number) {
@@ -331,6 +324,24 @@
 
 	.wallet-lose {
 		color: #f87171;
+	}
+
+	.share-btn {
+		margin: 0.75rem auto 0;
+		display: block;
+		padding: 0.6rem 1.2rem;
+		font-family: inherit;
+		font-size: 0.65rem;
+		background: #0a0a0a;
+		border: 2px solid #00ff99;
+		color: #00ff99;
+		cursor: pointer;
+		letter-spacing: 0.05em;
+	}
+
+	.share-btn:hover {
+		background: #00ff99;
+		color: #000;
 	}
 
 	form {
