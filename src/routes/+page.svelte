@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
 	import { enhance } from '$app/forms';
 	import { ATTRIBUTE_CONFIGS, GUESS_COST, HINT_COST } from '$lib/gameLogic';
 	import type { PageData, ActionData } from './$types';
@@ -123,6 +124,7 @@
 	}
 
 	async function shareResults() {
+		if (!browser) return;
 		const text = buildShareText();
 		if (navigator.share) {
 			await navigator.share({ text });
@@ -159,12 +161,13 @@
 		<h1>Walletdle</h1>
 		{#if data.won}
 			<p class="wallet wallet-win">You spent ${spent}!</p>
-			<button class="share-btn" onclick={shareResults}>{shareLabel}</button>
 		{:else if data.lost}
 			<p class="wallet wallet-lose">You went bankrupt!</p>
-			<button class="share-btn" onclick={shareResults}>{shareLabel}</button>
 		{:else}
 			<p class="wallet">${spent} spent</p>
+		{/if}
+		{#if gameOver}
+			<button class="share-btn" onclick={shareResults}>{shareLabel}</button>
 		{/if}
 	</header>
 
