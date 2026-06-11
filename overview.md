@@ -203,13 +203,17 @@ returns `null`, and the mode treats it as a fresh game. The key is derived
 ### Shared round logic — [src/lib/server/game.ts](src/lib/server/game.ts)
 
 Mode-agnostic helpers operating on a `RoundState` (`{ guesses, purchasedHints }`),
-which each mode's cookie extends:
+which each mode's cookie extends. `guesses` is just an array of **character ids** —
+the hints are re-derived from the target on read, not stored, so the encrypted
+cookie stays tiny no matter how many guesses are made (an unbounded hints blob
+would otherwise overflow the ~4KB cookie limit and silently drop progress):
 
 - `hasWon(state, target)` — has the target's id been guessed.
-- `rehydrateGuesses(state)` — expand compact stored guesses (`{ characterId,
-hints }`) into full `GuessResult[]`, dropping any unknown id.
+- `rehydrateGuesses(state, target)` — map each stored id to its `Character` and
+  re-`evaluateGuess` it against `target` to produce `GuessResult[]`, dropping any
+  unknown id.
 - `applyGuess(state, target, formData)` — validates the typed name (unknown /
-  duplicate), evaluates server-side, pushes onto `state.guesses`. Returns a
+  duplicate), then pushes the character id onto `state.guesses`. Returns a
   `fail(400, { error })` for the action to re-return, or `undefined` on success.
 - `applyHint(state, target, formData)` — validates the key / already-purchased,
   stores the formatted target value in `state.purchasedHints`.
@@ -242,9 +246,10 @@ type CookieData = RoundState & {
 };
 ```
 
-- The target is random, so `targetId` is stored in the cookie. `load` persists the
-  cookie (so a freshly dealt target stays stable across requests) and starts a new
-  round if the stored id is missing/unknown.
+- The target is random, so `targetId` is stored in the cookie. `load` starts a new
+  round if the stored id is missing/unknown, and persists the cookie **only when it
+  deals a fresh target** (so a new target stays stable across requests without
+  re-encrypting the cookie on every load).
 - `actions.guess` / `actions.hint` resolve the target via `charactersById[targetId]`
   and reuse the shared helpers.
 - `actions.next` — only valid once the round is won; folds the round's spend into

@@ -32,24 +32,27 @@ function newRound(stats: EndlessStats): CookieData {
 function roundSpend(state: RoundState): number {
 	return state.guesses.length * GUESS_COST + Object.keys(state.purchasedHints).length * HINT_COST;
 }
-
-async function readCookie(raw: string | undefined): Promise<CookieData> {
-	if (!raw) return newRound(emptyStats());
+async function readCookie(raw: string | undefined): Promise<{ data: CookieData; isNew: boolean }> {
+	const fresh = (stats: EndlessStats) => ({ data: newRound(stats), isNew: true });
+	if (!raw) return fresh(emptyStats());
 	const json = await decryptCookie(raw);
-	if (!json) return newRound(emptyStats());
+	if (!json) return fresh(emptyStats());
 	try {
 		const data = JSON.parse(json) as Partial<CookieData>;
 		const stats = { ...emptyStats(), ...data.stats };
 		// Start a fresh round if the stored target is missing/unknown.
-		if (!data.targetId || !charactersById[data.targetId]) return newRound(stats);
+		if (!data.targetId || !charactersById[data.targetId]) return fresh(stats);
 		return {
-			targetId: data.targetId,
-			guesses: data.guesses ?? [],
-			purchasedHints: data.purchasedHints ?? {},
-			stats
+			data: {
+				targetId: data.targetId,
+				guesses: data.guesses ?? [],
+				purchasedHints: data.purchasedHints ?? {},
+				stats
+			},
+			isNew: false
 		};
 	} catch {
-		return newRound(emptyStats());
+		return fresh(emptyStats());
 	}
 }
 
@@ -65,13 +68,12 @@ const cookieOpts = {
 } as const;
 
 export const load: PageServerLoad = async ({ cookies }) => {
-	const stored = await readCookie(cookies.get(COOKIE));
+	const { data: stored, isNew } = await readCookie(cookies.get(COOKIE));
 	const target = charactersById[stored.targetId];
 
-	// Persist so a freshly picked target stays stable across requests.
-	cookies.set(COOKIE, await writeCookie(stored), cookieOpts);
+	if (isNew) cookies.set(COOKIE, await writeCookie(stored), cookieOpts);
 
-	const guesses = rehydrateGuesses(stored);
+	const guesses = rehydrateGuesses(stored, target);
 	const won = guesses.some((g) => g.character.id === target.id);
 
 	return {
@@ -85,7 +87,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 
 export const actions: Actions = {
 	guess: async ({ request, cookies }) => {
-		const stored = await readCookie(cookies.get(COOKIE));
+		const { data: stored } = await readCookie(cookies.get(COOKIE));
 		const target = charactersById[stored.targetId];
 
 		const failure = applyGuess(stored, target, await request.formData());
@@ -95,7 +97,7 @@ export const actions: Actions = {
 	},
 
 	hint: async ({ request, cookies }) => {
-		const stored = await readCookie(cookies.get(COOKIE));
+		const { data: stored } = await readCookie(cookies.get(COOKIE));
 		const target = charactersById[stored.targetId];
 
 		const failure = applyHint(stored, target, await request.formData());
@@ -106,7 +108,7 @@ export const actions: Actions = {
 
 	// Fold the won round into the running stats and deal a fresh character.
 	next: async ({ cookies }) => {
-		const stored = await readCookie(cookies.get(COOKIE));
+		const { data: stored } = await readCookie(cookies.get(COOKIE));
 		const target = charactersById[stored.targetId];
 
 		if (!hasWon(stored, target)) return fail(400, { error: 'Finish the round first.' });

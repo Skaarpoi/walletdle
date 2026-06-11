@@ -4,35 +4,26 @@ import { charactersById, charactersByDisplayName } from '$lib/data';
 import { ATTRIBUTE_CONFIGS } from '$lib/gameLogic';
 import { evaluateGuess } from './gameLogic';
 
-export type StoredGuess = {
-	characterId: string;
-	hints: GuessResult['hints'];
-};
-
-// The per-round state shared by every mode (daily, endless, …). Modes wrap this
-// with their own extra fields (e.g. `date` or `targetId` + `stats`).
 export type RoundState = {
-	guesses: StoredGuess[];
+	guesses: string[];
 	purchasedHints: Record<string, string>;
 };
 
 export function hasWon(state: RoundState, target: Character): boolean {
-	return state.guesses.some((g) => g.characterId === target.id);
+	return state.guesses.includes(target.id);
 }
 
-// Rehydrate compact stored guesses into full GuessResults, dropping unknown ids.
-export function rehydrateGuesses(state: RoundState): GuessResult[] {
+// Expand stored character ids into full GuessResults, re-evaluating each against
+// the target and dropping any unknown id.
+export function rehydrateGuesses(state: RoundState, target: Character): GuessResult[] {
 	return state.guesses
-		.map((g) => {
-			const character = charactersById[g.characterId];
-			if (!character) return null;
-			return { character, hints: g.hints } satisfies GuessResult;
+		.map((id) => {
+			const character = charactersById[id];
+			return character ? evaluateGuess(character, target) : null;
 		})
 		.filter((g): g is GuessResult => g !== null);
 }
 
-// Validate + apply a guess to `state` (mutates it). Returns a fail() to be
-// re-returned by the action, or undefined on success.
 export function applyGuess(
 	state: RoundState,
 	target: Character,
@@ -44,12 +35,11 @@ export function applyGuess(
 	const character = charactersByDisplayName[name.toLowerCase()];
 	if (!character) return fail(400, { error: 'Unknown character — pick one from the list.' });
 
-	if (state.guesses.some((g) => g.characterId === character.id)) {
+	if (state.guesses.includes(character.id)) {
 		return fail(400, { error: 'Already guessed that one.' });
 	}
 
-	const result = evaluateGuess(character, target);
-	state.guesses.push({ characterId: character.id, hints: result.hints });
+	state.guesses.push(character.id);
 }
 
 // Validate + apply a purchased hint to `state` (mutates it).

@@ -7,12 +7,28 @@ import { env } from '$env/dynamic/private';
 
 const ALGO = 'AES-GCM';
 const IV_LEN = 12;
+const DEV_SECRET = 'walletdle-dev-secret-change-me';
 
 // Dev fallback so the game runs with no setup. In production set a real secret:
 //   wrangler secret put WALLETDLE_SECRET
 // (and put it in .dev.vars / .env for local `wrangler dev` / `vite dev`).
+// Without it the cookie is encrypted with this public, source-visible key, so its
+// contents (notably the endless target id) are no longer private or tamper-proof —
+// warn once so a misconfigured deploy is visible in the logs instead of silent.
+let warnedMissingSecret = false;
+
 function secret(): string {
-	return env.WALLETDLE_SECRET ?? 'walletdle-dev-secret-change-me';
+	if (!env.WALLETDLE_SECRET) {
+		if (!warnedMissingSecret) {
+			warnedMissingSecret = true;
+			console.warn(
+				'[walletdle] WALLETDLE_SECRET is not set — cookies are encrypted with an insecure ' +
+					'public default. Set it with `wrangler secret put WALLETDLE_SECRET` in production.'
+			);
+		}
+		return DEV_SECRET;
+	}
+	return env.WALLETDLE_SECRET;
 }
 
 // Derive a 256-bit AES key from the secret (cached per secret value).

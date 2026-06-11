@@ -39,7 +39,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 	const today = new Date().toISOString().slice(0, 10);
 	const stored = await readCookie(cookies.get(COOKIE), today);
 
-	const guesses = rehydrateGuesses(stored);
+	const guesses = rehydrateGuesses(stored, target);
 	const won = guesses.some((g) => g.character.id === target.id);
 
 	return {
