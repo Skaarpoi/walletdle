@@ -1,0 +1,6 @@
+# Local secrets for `vite dev` / `wrangler dev`. Copy to `.dev.vars` (gitignored)
+# and fill in real values. In production set these with `wrangler secret put <NAME>`.
+
+# Key used to AES-GCM encrypt the game cookies (see src/lib/server/crypto.ts).
+# Generate one with: node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"
+WALLETDLE_SECRET=replace-with-a-long-random-value

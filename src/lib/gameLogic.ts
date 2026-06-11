@@ -1,6 +1,5 @@
 import type { AttributeConfig, HeightCategory, RarityTier, Species } from '$lib/types';
 
-export const MAX_GUESSES = 8;
 export const HINT_COST = 100;
 export const GUESS_COST = 20;
 
