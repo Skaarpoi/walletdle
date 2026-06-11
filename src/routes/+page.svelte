@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
 	import { enhance } from '$app/forms';
 	import { ATTRIBUTE_CONFIGS, GUESS_COST, HINT_COST } from '$lib/gameLogic';
 	import type { PageData, ActionData } from './$types';
@@ -103,6 +104,37 @@
 		}
 	});
 
+	// ── Share ─────────────────────────────────────────────────────────────
+	const SHARE_EMOJI: Record<HintResult, string> = {
+		correct: '🟩',
+		partial: '🟨',
+		wrong: '⬛',
+		higher: '🔼',
+		lower: '🔽'
+	};
+
+	let shareLabel = $state<'Share' | 'Copied!'>('Share');
+
+	function buildShareText(): string {
+		const date = new Date().toISOString().slice(0, 10);
+		const grid = data.guesses
+			.map((g) => ATTRIBUTE_CONFIGS.map((cfg) => SHARE_EMOJI[g.hints[cfg.key] ?? 'wrong']).join(''))
+			.join('\n');
+		return `Walletdle ${date}\n$${spent} spent\n\n${grid}`;
+	}
+
+	async function shareResults() {
+		if (!browser) return;
+		const text = buildShareText();
+		if (navigator.share) {
+			await navigator.share({ text });
+		} else {
+			await navigator.clipboard.writeText(text);
+			shareLabel = 'Copied!';
+			setTimeout(() => (shareLabel = 'Share'), 2000);
+		}
+	}
+
 	async function animateRow(rowIdx: number) {
 		const reelItems: Record<string, string[]> = {};
 		for (const cfg of ATTRIBUTE_CONFIGS) {
@@ -133,6 +165,9 @@
 			<p class="wallet wallet-lose">You went bankrupt!</p>
 		{:else}
 			<p class="wallet">${spent} spent</p>
+		{/if}
+		{#if gameOver}
+			<button class="share-btn" onclick={shareResults}>{shareLabel}</button>
 		{/if}
 	</header>
 
@@ -270,6 +305,24 @@
 		margin: 0.25rem 0 0;
 		font-size: 1.1rem;
 		color: #facc15;
+	}
+
+	.share-btn {
+		margin: 0.75rem auto 0;
+		display: block;
+		padding: 0.6rem 1.2rem;
+		font-family: inherit;
+		font-size: 0.65rem;
+		background: #0a0a0a;
+		border: 2px solid #00ff99;
+		color: #00ff99;
+		cursor: pointer;
+		letter-spacing: 0.05em;
+	}
+
+	.share-btn:hover {
+		background: #00ff99;
+		color: #000;
 	}
 
 	.wallet-win {
