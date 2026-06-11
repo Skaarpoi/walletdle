@@ -119,7 +119,7 @@
 		const grid = data.guesses
 			.map((g) => ATTRIBUTE_CONFIGS.map((cfg) => SHARE_EMOJI[g.hints[cfg.key] ?? 'wrong']).join(''))
 			.join('\n');
-		return `Walletdle ${date}\n$${spent} spent\n\n${grid}`;
+		return `Walletdle ${date}\n$${spent} spent\n\n${grid}\n\n${window.location.origin}`;
 	}
 
 	async function shareResults() {
