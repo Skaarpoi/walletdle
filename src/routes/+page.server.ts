@@ -1,6 +1,6 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { charactersById, charactersByName, characters } from '$lib/data';
+import { charactersById, charactersByDisplayName, characterDisplayNames } from '$lib/data';
 import { getDailyCharacter, evaluateGuess } from '$lib/server/gameLogic';
 import { MAX_GUESSES, ATTRIBUTE_CONFIGS } from '$lib/gameLogic';
 import type { GuessResult } from '$lib/types';
@@ -61,7 +61,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		guesses,
 		won,
 		lost,
-		characterNames: characters.map((c) => c.name).sort(),
+		characterNames: characterDisplayNames,
 		purchasedHints: stored.purchasedHints
 	};
 };
@@ -80,7 +80,7 @@ export const actions: Actions = {
 		const formData = await request.formData();
 		const name = ((formData.get('character') as string) ?? '').trim();
 
-		const character = charactersByName[name.toLowerCase()];
+		const character = charactersByDisplayName[name.toLowerCase()];
 		if (!character) return fail(400, { error: 'Unknown character — pick one from the list.' });
 
 		if (stored.guesses.some((g) => g.characterId === character.id)) {

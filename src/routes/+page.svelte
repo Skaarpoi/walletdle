@@ -36,13 +36,46 @@
 	// ── Slot machine animation ────────────────────────────────────────────
 	const SPIN_POOLS: Partial<Record<string, string[]>> = {
 		game: ['Genshin Impact', 'Honkai: Star Rail', 'Arknights', 'Blue Archive', 'Wuthering Waves'],
-		rarity: ['R', 'SR', 'SSR'],
+		rarity: ['N', 'R', 'SR', 'SSR', 'Other'],
 		gender: ['Male', 'Female', 'Other'],
-		species: ['Human', 'Demi-human', 'Fantasy', 'Android'],
-		hairColor: ['Black', 'White', 'Blonde', 'Brown', 'Red', 'Blue', 'Green', 'Pink', 'Purple'],
-		eyeColor: ['Black', 'Brown', 'Red', 'Blue', 'Green', 'Purple', 'Yellow', 'Pink', 'White'],
+		species: ['Human', 'Demi-human', 'Fantasy', 'Android', 'Other'],
+		hairColor: [
+			'Black',
+			'White',
+			'Blonde',
+			'Brown',
+			'Red',
+			'Blue',
+			'Green',
+			'Pink',
+			'Purple',
+			'Multicolor'
+		],
+		eyeColor: [
+			'Black',
+			'Brown',
+			'Red',
+			'Blue',
+			'Green',
+			'Purple',
+			'Yellow',
+			'Pink',
+			'White',
+			'Multicolor'
+		],
 		heightCategory: ['Short', 'Average', 'Tall'],
-		outfitColor: ['Black', 'White', 'Red', 'Blue', 'Green', 'Purple', 'Yellow', 'Pink', 'Brown'],
+		outfitColor: [
+			'Black',
+			'White',
+			'Red',
+			'Blue',
+			'Green',
+			'Purple',
+			'Yellow',
+			'Pink',
+			'Brown',
+			'Multicolor'
+		],
 		affiliation: ['???'],
 		voiceActorJP: ['???'],
 		releaseDate: ['2019-01', '2020-06', '2021-03', '2022-09', '2023-04', '2024-01']
@@ -56,9 +89,11 @@
 	let rowDisplays = $state<Record<number, RowSpinState>>({});
 	let lastAnimatedCount = -1;
 
+	const latestSpin = $derived(rowDisplays[data.guesses.length - 1]);
+
 	$effect(() => {
 		const count = data.guesses.length;
-		if (lastAnimatedCount === -1) {
+		if (lastAnimatedCount === -1 || lastAnimatedCount > count) {
 			lastAnimatedCount = count;
 			return;
 		}
@@ -141,7 +176,6 @@
 					<tr>
 						<th>Name</th>
 						{#each ATTRIBUTE_CONFIGS as cfg, cfgIdx (cfg.key)}
-							{@const latestSpin = rowDisplays[data.guesses.length - 1]}
 							{@const colSpinning = latestSpin !== undefined && cfgIdx >= latestSpin.stoppedCount}
 							{@const revealedValue = colSpinning
 								? (data.purchasedHints[cfg.key] ?? null)
