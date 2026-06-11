@@ -15,7 +15,8 @@
 		"test:unit": "vitest",
 		"test": "npm run test:unit -- --run",
 		"deploy": "npm run build && wrangler deploy",
-		"cf-typegen": "wrangler types ./src/worker-configuration.d.ts"
+		"cf-typegen": "wrangler types ./src/worker-configuration.d.ts",
+		"scrape:arknights": "node --experimental-strip-types src/lib/scripts/AKScraper.ts"
 	},
 	"simple-git-hooks": {
 		"pre-commit": "npx lint-staged"

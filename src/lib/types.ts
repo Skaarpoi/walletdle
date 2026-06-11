@@ -32,7 +32,7 @@ export type HairColor =
 	| 'Purple'
 	| 'Multicolor';
 
-export type EyeColor =
+export type Color =
 	| 'Black'
 	| 'Brown'
 	| 'Red'
@@ -45,18 +45,6 @@ export type EyeColor =
 	| 'Multicolor';
 
 export type HeightCategory = 'Short' | 'Average' | 'Tall';
-
-export type OutfitColor =
-	| 'Black'
-	| 'White'
-	| 'Red'
-	| 'Blue'
-	| 'Green'
-	| 'Purple'
-	| 'Yellow'
-	| 'Pink'
-	| 'Brown'
-	| 'Multicolor';
 
 export type ComparisonType = 'exact' | 'ordered' | 'hierarchical';
 
@@ -71,9 +59,9 @@ export interface Character {
 	gender: Gender;
 	species: Species;
 	hairColor: HairColor;
-	eyeColor: EyeColor;
+	eyeColor: Color;
 	heightCategory: HeightCategory;
-	outfitColor: OutfitColor;
+	outfitColor: Color;
 	affiliation: string;
 	voiceActorJP: string;
 }
