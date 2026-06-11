@@ -7,6 +7,10 @@ export function getDailyCharacter(): Character {
 	return characters[dayIndex % characters.length];
 }
 
+export function getRandomCharacter(): Character {
+	return characters[Math.floor(Math.random() * characters.length)];
+}
+
 function compareOrdered(gVal: unknown, tVal: unknown, order?: (v: unknown) => number): HintResult {
 	if (order) {
 		const g = order(gVal);
